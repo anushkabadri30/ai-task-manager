@@ -1,12 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
+const suggestions = [
+  "Review code changes",
+  "Write unit tests",
+  "Update documentation",
+  "Fix reported bugs",
+  "Plan next sprint",
+  "Refactor old code",
+  "Deploy to production",
+  "Code review for team",
+  "Update dependencies",
+  "Write API documentation"
+];
+
 function App() {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(() => {
+    const saved = localStorage.getItem("tasks");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [filter, setFilter] = useState("all");
+
+  // Save to local storage every time tasks change
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   function addTask() {
     if (!title || !priority || !dueDate) {
@@ -26,6 +47,12 @@ function App() {
     setTitle("");
     setPriority("");
     setDueDate("");
+  }
+
+  function suggestTask() {
+    const random = suggestions[Math.floor(Math.random() * suggestions.length)];
+    setTitle(random);
+    setPriority("medium");
   }
 
   function toggleTask(id) {
@@ -66,6 +93,9 @@ function App() {
           value={title}
           onChange={e => setTitle(e.target.value)}
         />
+        <button className="suggest-btn" onClick={suggestTask}>
+          🤖 Suggest a Task
+        </button>
         <div className="form-row">
           <select value={priority} onChange={e => setPriority(e.target.value)}>
             <option value="">Priority</option>
